@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pixel-Fußball mit Tor, 108x108 (sichtbarer Bereich ca. 66x66 in der Mitte) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Tor -->
+    <path android:fillColor="#FFFFFF" android:pathData="M30,32 h48 v4 h-48 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M30,32 h4 v34 h-4 z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M74,32 h4 v34 h-4 z" />
+    <path android:fillColor="#5FA84E" android:pathData="M34,36 h40 v30 h-40 z" />
+    <path android:fillColor="#7FC06D" android:pathData="M38,36 h2 v30 h-2 z M46,36 h2 v30 h-2 z M54,36 h2 v30 h-2 z M62,36 h2 v30 h-2 z M70,36 h2 v30 h-2 z M34,42 h40 v2 h-40 z M34,50 h40 v2 h-40 z M34,58 h40 v2 h-40 z" />
+    <!-- Ball -->
+    <path android:fillColor="#FFFFFF" android:pathData="M48,56 h12 v2 h2 v10 h-2 v2 h-12 v-2 h-2 v-10 h2 z" />
+    <path android:fillColor="#151515" android:pathData="M52,60 h4 v4 h-4 z M48,58 h2 v2 h-2 z M58,58 h2 v2 h-2 z M50,66 h2 v2 h-2 z M56,66 h2 v2 h-2 z" />
+    <!-- Rote 91 -->
+    <path android:fillColor="#FF4433" android:pathData="M36,74 h8 v2 h2 v8 h-2 v2 h-8 v-2 h6 v-2 h-6 v-2 h-2 v-4 h2 z M38,76 v4 h4 v-4 z M52,74 h6 v12 h-4 v-10 h-2 z" />
+</vector>
