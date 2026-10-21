@@ -331,8 +331,16 @@ tr.mine td{background:#323fa8; color:var(--gold)}
       <h3>Spieleinsatz</h3><div class="seg" data-opt="einsatz"></div>
       <p class="hint">Mannschaftsstärke: <span id="sq-str"></span></p>
     </div>
+    <div class="panel">
+      <h2>Aufstellung</h2>
+      <p class="hint" style="margin:0 0 6px" id="ln-mode"></p>
+      <h3>Startelf</h3><div class="pls" id="ln-xi"></div>
+      <h3>Reserve</h3><div class="pls" id="ln-res"></div>
+      <div class="msg" id="ln-msg" role="status"></div>
+      <div class="row" style="margin-top:8px"><button type="button" class="btn ghost" id="ln-auto">Automatisch aufstellen</button></div>
+    </div>
     <div class="panel"><h2>Ihre Mannschaft</h2><div class="tw"><table id="sq"></table></div>
-      <p class="hint">Gelb markiert: Startelf, automatisch nach Tagesform aufgestellt. Form: ↑↑ super bis ↓↓ schwach. Kond. = Kondition (0–100). Gehälter pro Spieltag: <span id="sq-pay"></span></p></div>
+      <p class="hint">Gelb markiert: Startelf. Form: ↑↑ super bis ↓↓ schwach. Kond. = Kondition (0–100). Gehälter pro Spieltag: <span id="sq-pay"></span></p></div>
     <button class="btn big" data-go="menu">Hauptmenü</button>
   </section>
 
@@ -595,7 +603,19 @@ function bestXI(sq, f){
   return xi;
 }
 const myForm = () => FORMS[S.tactic] || FORMS["4-4-2"];
-function lineup(id){ return bestXI(S.squads[id], id === S.my ? myForm() : FORMS["4-4-2"]); }
+function lineup(id){
+  if (id === S.my && S.xi) return manualXI();
+  return bestXI(S.squads[id], id === S.my ? myForm() : FORMS["4-4-2"]);
+}
+function manualXI(){
+  const sq = S.squads[S.my];
+  const xi = S.xi.map(pid => sq.find(p => p.id === pid)).filter(p => p && !p.inj);
+  if (xi.length < 11){
+    const fill = [...bestXI(sq, myForm()), ...sq.filter(p => !p.inj).sort((a,b) => eff(b) - eff(a))];
+    for (const p of fill){ if (xi.length >= 11) break; if (!xi.includes(p)) xi.push(p); }
+  }
+  return xi.slice(0, 11);
+}
 function strOf(xi, f, e, tb = 1){
   const avg = a => a.length ? a.reduce((s,p) => s + eff(p), 0) / a.length : 30;
   const g = xi.find(p => p.pos === "TOR"); const gk = g ? eff(g) : 30;
@@ -954,8 +974,38 @@ function playerCells(p){
   const [fa, fc] = formArrow(p.form), [ml, mc] = moodLabel(p.laune);
   return `<td class="n" style="color:${fc}">${fa}</td><td class="n" style="color:${kondColor(p.kond)}">${p.kond}</td><td style="color:${mc}">${ml}</td>`;
 }
+let lnSel = null;
+const POS_ORDER = {TOR:0, ABW:1, MIT:2, ANG:3};
+function renderLineup(){
+  const xi = lineup(S.my), ids = new Set(xi.map(p => p.id));
+  const res = S.squads[S.my].filter(p => !ids.has(p.id)).sort((a,b) => POS_ORDER[a.pos] - POS_ORDER[b.pos] || eff(b) - eff(a));
+  const row = (p, attr, sel) => { const [fa, fc] = formArrow(p.form);
+    return `<button type="button" class="pl" ${attr}="${p.id}" aria-pressed="${sel}" ${p.inj ? "disabled" : ""}><span class="pos">${p.pos}</span><span class="nm">${p.name}${p.inj ? ` <em style="color:var(--bad)">verletzt (${p.inj})</em>` : ""}</span><span>${Math.round(eff(p))}</span><span style="color:${fc}">${fa}</span><span style="color:${kondColor(p.kond)}">${p.kond}</span></button>`; };
+  $("#ln-mode").textContent = (S.xi ? "Eigene Aufstellung. " : "Automatische Aufstellung nach Tagesform. ") + "Zum Tauschen erst einen Spieler der Startelf antippen, dann einen Reservisten. Spalten: Stärke heute, Form, Kondition.";
+  $("#ln-xi").innerHTML = xi.slice().sort((a,b) => POS_ORDER[a.pos] - POS_ORDER[b.pos]).map(p => row(p, "data-lx", lnSel === p.id)).join("");
+  $("#ln-res").innerHTML = res.map(p => row(p, "data-lr", false)).join("");
+  const cnt = k => xi.filter(p => p.pos === k).length;
+  const warn = [];
+  if (!cnt("TOR")) warn.push("Kein Torwart in der Startelf!");
+  if (cnt("TOR") > 1) warn.push("Zwei Torhüter in der Startelf.");
+  if (S.xi && S.xi.some(id => { const p = S.squads[S.my].find(x => x.id === id); return !p || p.inj; })) warn.push("Verletzte oder verkaufte Spieler wurden automatisch ersetzt.");
+  const msg = $("#ln-msg"); if (warn.length){ msg.textContent = warn.join(" "); msg.classList.add("bad"); } else if (msg.classList.contains("bad")){ msg.textContent = ""; msg.classList.remove("bad"); }
+  $("#ln-auto").disabled = !S.xi;
+  $$("[data-lx]").forEach(b => b.onclick = () => { lnSel = lnSel === b.dataset.lx ? null : b.dataset.lx; renderLineup(); });
+  $$("[data-lr]").forEach(b => b.onclick = () => {
+    if (!lnSel){ const m = $("#ln-msg"); m.classList.remove("bad"); m.textContent = "Erst einen Spieler der Startelf antippen."; return; }
+    const cur = lineup(S.my).map(p => p.id), i = cur.indexOf(lnSel);
+    if (i < 0) return;
+    const outP = S.squads[S.my].find(p => p.id === lnSel), inP = S.squads[S.my].find(p => p.id === b.dataset.lr);
+    cur[i] = b.dataset.lr; S.xi = cur; lnSel = null;
+    save(); renderSquad();
+    const m = $("#ln-msg"); if (!m.classList.contains("bad")) m.textContent = `${inP.name} spielt für ${outP.name}.`;
+  });
+}
+$("#ln-auto").onclick = () => { S.xi = null; lnSel = null; save(); renderSquad(); $("#ln-msg").textContent = "Aufstellung wieder automatisch nach Tagesform."; };
 function renderSquad(){
   renderTacticSegs();
+  renderLineup();
   const xi = new Set(lineup(S.my).map(p => p.id));
   const order = {TOR:0, ABW:1, MIT:2, ANG:3};
   const sq = S.squads[S.my].slice().sort((a,b) => order[a.pos] - order[b.pos] || b.st - a.st);
@@ -1366,9 +1416,9 @@ function renderSponsor(){
 }
 
 /* ---------- Spielsimulation ---------- */
-const TYPES   = ["konter","flanke","ecke","fernschuss","doppelpass","dribbling","elfmeter","fallrueckzieher"];
-const TYPE_W  = [17, 18, 15, 15, 12, 12, 5, 3];
-const HOW = {flanke:" per Kopf", ecke:" per Kopf nach Ecke", fernschuss:" aus der Distanz", elfmeter:" per Elfmeter", fallrueckzieher:" per Fallrückzieher!", konter:" nach Konter", doppelpass:" nach Doppelpass", dribbling:" nach Solo"};
+const TYPES   = ["konter","flanke","ecke","fernschuss","doppelpass","dribbling","elfmeter","fallrueckzieher","freistoss"];
+const TYPE_W  = [16, 17, 14, 13, 11, 11, 8, 3, 9];
+const HOW = {flanke:" per Kopf", ecke:" per Kopf nach Ecke", fernschuss:" aus der Distanz", elfmeter:" per Elfmeter", fallrueckzieher:" per Fallrückzieher!", konter:" nach Konter", doppelpass:" nach Doppelpass", dribbling:" nach Solo", freistoss:" per Freistoß"};
 const MAX_SUBS = 2;
 let MKEY = "k", NEWINJ = new Set();
 function newMatch(h, a, extra = {}){
@@ -1387,7 +1437,7 @@ function restr(m){
 const mySide = m => m.h === S.my ? 0 : 1;
 function pickShooter(xi, type){
   const pool = xi.filter(p => p.pos !== "TOR");
-  if (type === "elfmeter") return pool.slice().sort((a,b) => eff(b) - eff(a))[0];
+  if (type === "elfmeter" || type === "freistoss") return pool.filter(p => p.pos !== "ABW").sort((a,b) => eff(b) - eff(a))[type === "freistoss" && Math.random() < 0.4 ? 1 : 0] || pool[0];
   const w = (type === "flanke" || type === "ecke") ? {ABW:2, MIT:1.5, ANG:4} : {ABW:0.6, MIT:2, ANG:4.2};
   return wpick(pool, pool.map(p => w[p.pos] * Math.max(1, eff(p))));
 }
@@ -1401,7 +1451,7 @@ function stepMinute(m){
     if (Math.random() < p){
       m.ch[s]++;
       const type = wpick(TYPES, TYPE_W);
-      const gp = type === "elfmeter" ? 0.76 : type === "fallrueckzieher" ? 0.22 : Math.min(0.6, 0.3 * Math.pow(ratio, 1.3));
+      const gp = type === "elfmeter" ? 0.76 : type === "fallrueckzieher" ? 0.22 : type === "freistoss" ? 0.24 : Math.min(0.6, 0.3 * Math.pow(ratio, 1.3));
       let outcome;
       if (Math.random() < gp) outcome = "tor";
       else { const y = Math.random(); outcome = y < 0.45 ? "parade" : y < 0.85 ? "vorbei" : "pfosten"; }
@@ -1625,7 +1675,7 @@ function applyEvent(m, ev){
       if (!mine) flashKonf(m);
     } else if (mine){
       const t = {parade:"Glanzparade gegen", vorbei:"Vorbei! Chance für", pfosten:"Pfosten! Pech für"}[ev.outcome];
-      const how = ev.type === "fallrueckzieher" ? " (Fallrückzieher)" : (ev.type === "flanke" || ev.type === "ecke") ? " (Kopfball)" : "";
+      const how = {fallrueckzieher:" (Fallrückzieher)", flanke:" (Kopfball)", ecke:" (Kopfball)", freistoss:" (Freistoß)", elfmeter:" (Elfmeter)"}[ev.type] || "";
       logLine(`${t} ${ev.player.name}${how} (${team.short})`, "me");
     }
   } else if (ev.kind === "yellow"){
@@ -2040,10 +2090,16 @@ function script(type){
       runs:{1:[[0,72,24],[2.2,90,26]], 2:[[0,66,32],[2.2,80,32]]},
       defs:[[78,42],[84,43],[88,36],[82,30]], dsp:5};
     case "elfmeter": return {
-      intro: n => `Elfmeter! ${n} läuft an ...`,
-      touches:[[1.6,94,32,0,0]],
-      runs:{0:[[0,89,29],[1.6,93.6,31.7]], 1:[[0,87.5,20],[2,87.5,20]], 2:[[0,87.5,44],[2,87.5,44]]},
-      defs:[[87,16],[87.5,26],[87.5,38],[87,48]], dsp:0, hold:true, ballStart:[94,32,0]};
+      intro: n => `Foul im Strafraum – Elfmeter! ${n} tritt an ...`,
+      touches:[[2.4,94,32,0,0]],
+      runs:{0:[[0,89,29],[1.1,89,29],[2.4,93.6,31.7]], 1:[[0,87.5,20],[2.8,87.5,20]], 2:[[0,87.5,44],[2.8,87.5,44]]},
+      defs:[[87,16],[87.5,26],[87.5,38],[87,48]], dsp:0, hold:true, pen:true, ballStart:[94,32,0]};
+    case "freistoss": return {
+      intro: n => `Freistoß! ${n} gegen die Mauer ...`,
+      touches:[[2.1,84,25,0,0]],
+      ballStart:[84,25,0],
+      runs:{0:[[0,80.5,22],[1.1,80.5,22],[2.1,83.6,24.7]], 1:[[0,95,38],[2.6,98,36]], 2:[[0,94,45],[2.6,97,43]]},
+      defs:[[93.4,27.2],[93.4,28.2],[93.4,29.2],[93.4,30.2],[96,40]], dsp:0, hold:true, wall:4, fk:true, shotArc:2.0, shotDur:0.95};
   }
 }
 
@@ -2074,11 +2130,11 @@ function makeScene(ev, attKit, defKit, club){
   }
   const quick = sc.header || sc.bike;
   const dist = Math.hypot(target[0] - last.x, target[1] - last.y);
-  const shotDur = quick ? 0.45 : Math.max(0.35, Math.min(0.85, dist / 32));
+  const shotDur = sc.shotDur || (quick ? 0.45 : Math.max(0.35, Math.min(0.85, dist / 32)));
   const tShot = last.t + 0.08;
   segs.push({t0:last.t, t1:tShot, a:[last.x,last.y,last.z], b:[last.x,last.y,last.z], arc:0});
   const tHit = tShot + shotDur;
-  segs.push({t0:tShot, t1:tHit, a:[last.x, last.y, last.z], b:target, arc: target[2] > 3 ? 0.6 : quick ? 0.1 : 0.25});
+  segs.push({t0:tShot, t1:tHit, a:[last.x, last.y, last.z], b:target, arc: sc.shotArc ?? (target[2] > 3 ? 0.6 : quick ? 0.1 : 0.25)});
   let tp = tHit, prev = target;
   for (const [dt, x, y, z, arc] of after){ segs.push({t0:tp, t1:tp+dt, a:prev, b:[x,y,z], arc}); tp += dt; prev = [x,y,z]; }
 
@@ -2095,6 +2151,7 @@ function makeScene(ev, attKit, defKit, club){
   }
   const defs = sc.defs.map(([x,y], i) => ({x, y:F(y), kit:defKit, off:[-4,0,4,-1.5][i] * (flip?-1:1), lag:rnd(1,4), sp:sc.dsp * rnd(0.85,1.1), phase:rnd(0,6)}));
   if (sc.header || sc.bike){ const d = defs[0]; d.jump = {t:last.t + 0.05, h:0.7}; }
+  if (sc.wall) defs.slice(0, sc.wall).forEach((d, i) => d.jump = {t:last.t + 0.28 + i * 0.02, h:0.55});
   const keeper = {x:GX - 0.8, y:32, kit:KEEPER, phase:0};
   const kReach = {parade:1, tor: Math.random() < 0.3 ? -0.6 : 0.55, pfosten:0.7, vorbei:0.45}[out];
   const celebrate = [97, flip ? 58 : 6];
@@ -2102,8 +2159,8 @@ function makeScene(ev, attKit, defKit, club){
   const intro = sc.intro(name);
   const bikeGoal = sc.bike && out === "tor";
   const outText = out === "tor" ? {t: bikeGoal ? "TRAUMTOR!" : "TOR!", c:"#ffd23a"} : out === "parade" ? {t:"GEHALTEN!", c:"#9fd8ff"} : out === "pfosten" ? {t:"PFOSTEN!", c:"#ff8a5a"} : {t: target[2] > 3 ? "DRÜBER!" : "VORBEI!", c:"#e8ecff"};
-  const how = sc.bike ? " per Fallrückzieher" : sc.header ? " per Kopf" : "";
-  const outCap = out === "tor" ? `${name} trifft${how} für ${club.short}!` : out === "parade" ? "Glanzparade des Torwarts!" : out === "pfosten" ? `${name} trifft nur das Aluminium!` : "Das war knapp ...";
+  const how = sc.bike ? " per Fallrückzieher" : sc.header ? " per Kopf" : sc.fk ? " per direktem Freistoß" : sc.pen ? " vom Punkt" : "";
+  const outCap = out === "tor" ? `${name} trifft${how} für ${club.short}!` : out === "parade" ? (sc.pen ? "Elfmeter gehalten!" : "Glanzparade des Torwarts!") : out === "pfosten" ? `${name} trifft nur das Aluminium!` : "Das war knapp ...";
   return {segs, atts, defs, keeper, tShot, tHit, end: tp + 1.6, out, gy, gz, kReach, celebrate, intro, outText, outCap, hold: !!sc.hold};
 }
 
