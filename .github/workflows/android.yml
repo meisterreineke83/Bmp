@@ -23,6 +23,9 @@ jobs:
         with:
           gradle-version: "8.9"
 
+      - name: Spiel zusammenbauen und Schriften einbetten
+        run: python3 tools/build.py --embed-fonts
+
       - name: APK bauen
         run: gradle assembleRelease --no-daemon
 

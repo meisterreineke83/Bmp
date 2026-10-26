@@ -10,9 +10,14 @@ Der traditionelle Bundesliga Manager Professional von 1991 in neuem Gewand: ein 
 
 ## Inhalt
 
+- Bis zu 4 Manager reihum an einem Gerät (Hotseat)
 - 3 Ligen mit je 18 Vereinen, Auf- und Abstieg
-- Meister-Pokal und Euro-Pokal mit Hin- und Rückspiel, Verlängerung und Elfmeterschießen
-- Spieltag mit Konferenz, Ticker und animierten Torszenen (Kopfball, Fallrückzieher …)
+- Nationaler Pokal mit 64 Teams sowie Meister-Pokal und Euro-Pokal mit Verlängerung und Elfmeterschießen
+- Spielerverträge mit Verhandlung, Jugendarbeit, Alterung und Karriereende
+- Editor für Vereine, Spieler und Wettbewerbe (z. B. echte Namen eintragen)
+- 5 Spielstände, Export und Import als Datei
+- Sound: Fans, Pfiffe, Torjubel – alles im Spiel erzeugt, läuft komplett offline
+- Spieltag mit Konferenz, Ticker und animierten Torszenen (Kopfball, Fallrückzieher, Freistoß, Latte, Abseits, Eigentor …)
 - Taktik, Spieleinsatz und Wechsel während des Spiels
 - Kader mit Form, Kondition und Laune, Training mit 10 Bällen, 10 Trainingslager
 - Transfermarkt, Stadionausbau, Bank mit Krediten, Trikot- und Bandenwerbung
@@ -21,10 +26,13 @@ Alle Vereine und Spieler sind erfunden.
 
 ## Aufbau
 
-- `app/src/main/assets/index.html` – das komplette Spiel (HTML, CSS, JavaScript in einer Datei)
+- `game/shell.html` – Seitenaufbau und Gestaltung
+- `game/js/*.js` – die Spiellogik, nach Bereichen aufgeteilt
+- `tools/build.py` – setzt alles zu einer Datei zusammen (`dist/libero91.html` und `app/src/main/assets/index.html`); mit `--embed-fonts` werden die Pixel-Schriften eingebettet
+- `app/src/main/assets/index.html` – das fertig zusammengesetzte Spiel
 - `app/src/main/java/.../MainActivity.java` – zeigt das Spiel bildschirmfüllend in einer WebView
-- `.github/workflows/android.yml` – baut bei jedem Push auf `main` automatisch die APK und legt ein Release an
+- `.github/workflows/android.yml` – setzt bei jedem Push auf `main` das Spiel zusammen, bettet die Schriften ein, baut die APK und legt ein Release an
 
-Das Spiel lässt sich auch direkt im Browser testen: `index.html` öffnen.
+Das Spiel lässt sich auch direkt im Browser testen: `python3 tools/build.py` ausführen und `dist/libero91.html` öffnen.
 
 `signing/libero91.jks` ist ein Hobby-Signaturschlüssel, damit Updates sich über alte Versionen installieren lassen. Für eine Veröffentlichung im Play Store sollte ein eigener, geheimer Schlüssel verwendet werden.

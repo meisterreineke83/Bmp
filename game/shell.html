@@ -1,0 +1,571 @@
+<title>Libero 91</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&display=swap">
+<style>
+/* Layout: one marble-framed Amiga console column; bevelled navy panels stacked inside; single dark look by choice */
+:root{
+  color-scheme: dark;
+  --bg:#0a0c24;
+  --navy:#1c2578; --navy-deep:#0f154e; --bevel-hi:#5560c9; --bevel-lo:#060924;
+  --ink:#e8ecff; --muted:#9aa3d8; --cyan:#9fd8ff; --gold:#ffd23a;
+  --an:#d0712e; --an-hi:#f3a25f; --an-lo:#6e3410; --off:#3a4280;
+  --marble-a:#9096aa; --marble-b:#5b6073; --marble-c:#c3c7d4;
+  --led:#ff4433; --good:#6be07a; --bad:#ff6a5a; --paper:#ece5cf; --paper-ink:#231a12;
+  --font-display:"Silkscreen","Courier New",monospace;
+  --font-body:"VT323","Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{
+  color:var(--ink); font-family:var(--font-body); font-size:20px; line-height:1.15;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+  padding-block:16px;
+}
+.app{
+  max-width:640px; margin:0 auto; padding:10px;
+  background:
+    radial-gradient(120% 60% at 20% 10%, var(--marble-c) 0 8%, transparent 30%),
+    radial-gradient(80% 50% at 80% 70%, var(--marble-c) 0 5%, transparent 25%),
+    repeating-linear-gradient(115deg, var(--marble-a) 0 7px, var(--marble-b) 7px 9px, var(--marble-a) 9px 19px),
+    var(--marble-a);
+  border:3px solid; border-color:var(--marble-c) var(--marble-b) var(--marble-b) var(--marble-c);
+  display:flex; flex-direction:column; gap:10px;
+}
+.marquee{
+  background:linear-gradient(180deg,#2f7a2c,#1f5a1d); border:3px solid; border-color:#6fbf5a #0b2a0a #0b2a0a #6fbf5a;
+  padding:8px 12px; display:flex; align-items:baseline; justify-content:space-between; gap:8px; flex-wrap:wrap;
+}
+.marquee h1{margin:0; font-family:var(--font-display); font-weight:700; font-size:clamp(26px,7vw,40px); letter-spacing:.04em; color:#f4ead2; text-shadow:3px 3px 0 #3b2414}
+.marquee h1 span{color:var(--led); text-shadow:3px 3px 0 #3b0000}
+.marquee p{margin:0; font-family:var(--font-display); font-size:12px; letter-spacing:.12em; color:#d6f0c8; text-transform:uppercase}
+.panel{
+  background:var(--navy); border:3px solid; border-color:var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
+  padding:10px 12px; min-width:0;
+}
+.panel h2{margin:0 0 8px; font-family:var(--font-display); font-size:14px; letter-spacing:.1em; color:var(--gold); text-transform:uppercase; text-wrap:balance}
+.panel h3{margin:10px 0 6px; font-family:var(--font-display); font-size:11px; letter-spacing:.12em; color:var(--cyan); text-transform:uppercase}
+.screen{display:flex; flex-direction:column; gap:10px}
+.btn{
+  font-family:var(--font-display); font-size:13px; letter-spacing:.06em; text-transform:uppercase;
+  color:#1b0c02; background:var(--an); border:3px solid; border-color:var(--an-hi) var(--an-lo) var(--an-lo) var(--an-hi);
+  padding:10px 14px; cursor:pointer; min-height:44px;
+}
+.btn:active{border-color:var(--an-lo) var(--an-hi) var(--an-hi) var(--an-lo)}
+.btn:disabled{background:var(--off); color:var(--muted); border-color:var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi); cursor:not-allowed}
+.btn.big{font-size:16px; padding:14px; width:100%}
+.btn.sm{font-size:11px; padding:6px 10px; min-height:36px}
+.btn.ghost{background:var(--off); color:var(--ink); border-color:var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi)}
+button:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+.row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+.row .btn{flex:1 1 140px}
+.linkbtn{background:none; border:0; color:#0f154e; font-weight:700; font-family:var(--font-display); font-size:11px; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; padding:8px; align-self:center; text-decoration:underline}
+
+.opt{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:4px 0; flex-wrap:wrap}
+.seg{display:flex; gap:4px; flex-wrap:wrap}
+.seg button{
+  font-family:var(--font-display); font-size:11px; min-width:44px; min-height:36px; cursor:pointer; padding:0 8px;
+  background:var(--off); color:var(--muted); border:2px solid; border-color:var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
+}
+.seg button[aria-pressed="true"]{background:var(--an); color:#1b0c02; border-color:var(--an-hi) var(--an-lo) var(--an-lo) var(--an-hi)}
+
+.clubs{display:grid; grid-template-columns:repeat(6,1fr); gap:8px}
+@media (max-width:560px){ .clubs{grid-template-columns:repeat(3,1fr)} }
+.club{
+  background:var(--navy-deep); border:2px solid var(--bevel-lo); padding:6px 4px; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--muted); font-family:var(--font-body); font-size:16px; text-align:center; min-width:0;
+}
+.club .tile{background:#fff; width:100%; max-width:64px; aspect-ratio:1; display:grid; place-items:center; border:2px solid #c9ccd8}
+.club .tile svg{width:86%; height:86%}
+.club span{overflow-wrap:anywhere}
+.club[aria-pressed="true"]{border-color:var(--gold); color:var(--gold); background:#2a3394}
+.picked{font-family:var(--font-display); text-align:center; font-size:13px; color:var(--cyan); background:var(--navy-deep); padding:6px; margin-top:8px; letter-spacing:.08em}
+
+.mhead{display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center}
+.mhead .tile{background:#fff; width:64px; height:64px; display:grid; place-items:center; border:2px solid #c9ccd8}
+.mhead .tile svg{width:56px; height:56px}
+.mhead .info{min-width:0}
+.mhead .md{font-family:var(--font-display); font-size:12px; color:var(--gold)}
+.mhead .nm{font-size:24px; overflow-wrap:anywhere}
+.cal{background:var(--paper); color:var(--paper-ink); text-align:center; padding:4px 8px; border:2px solid #b8a98a; min-width:84px}
+.cal b{display:block; font-family:var(--font-display); font-size:24px; line-height:1}
+.cal small{font-size:15px; display:block}
+.mfoot{display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-top:8px}
+.next{color:var(--cyan)}
+.cash{font-variant-numeric:tabular-nums}
+.cash.neg{color:var(--bad)}
+.tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
+.tilebtn{
+  overflow-wrap:anywhere; hyphens:manual; text-align:center;
+  background:var(--navy); border:3px solid; border-color:var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
+  color:var(--ink); cursor:pointer; padding:12px 8px; min-height:88px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  font-family:var(--font-display); font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+}
+.tilebtn svg{width:40px; height:40px}
+.tilebtn.hero{grid-column:1/-1; background:#26318f; color:var(--gold); font-size:15px}
+.tilebtn:active{border-color:var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo)}
+
+.board{background:#0b0b10; border:3px solid; border-color:#3a3a48 #000 #000 #3a3a48; padding:10px;
+  background-image:radial-gradient(#1c1c26 1px, transparent 1.2px); background-size:4px 4px}
+.sb{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px}
+.sb .tm{display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; text-align:center}
+.sb .tm .tile{background:#fff; width:52px; height:52px; display:grid; place-items:center; border:2px solid #c9ccd8; padding:0; cursor:default}
+.sb .tm .tile.mine{border:3px solid var(--gold); cursor:pointer; box-shadow:0 0 0 2px #000, 0 0 10px rgba(255,210,58,.6)}
+.sb .tm .tile svg{width:46px; height:46px}
+.sb .tm span{font-family:var(--font-display); font-size:11px; color:#d8d8e8; overflow-wrap:anywhere; letter-spacing:.04em}
+.led{font-family:var(--font-body); font-size:64px; line-height:.9; color:var(--led); text-shadow:0 0 8px rgba(255,68,51,.6); font-variant-numeric:tabular-nums; letter-spacing:.04em}
+.led i{font-style:normal; color:#7a1a14}
+.stats{margin-top:8px; display:grid; grid-template-columns:1fr auto auto; gap:2px 14px; background:#3d4a1e; border:2px solid #222a10; padding:6px 10px; color:#e8e8c8; font-size:18px; font-variant-numeric:tabular-nums}
+.stats .v{text-align:right; min-width:3ch}
+.tv{background:#000; border:3px solid; border-color:#4a4f66 #0b0c14 #0b0c14 #4a4f66}
+.tv canvas{display:block; width:100%; height:auto; aspect-ratio:16/9; image-rendering:pixelated; image-rendering:crisp-edges; cursor:pointer}
+.clock{display:flex; justify-content:center; align-items:center; gap:10px; font-family:var(--font-display); font-size:16px; color:var(--ink); padding:6px; background:#000}
+.clock .dial{width:18px; height:18px; border-radius:50%; border:2px solid #aab; position:relative}
+.clock .dial::after{content:""; position:absolute; left:50%; top:2px; width:2px; height:6px; background:#aab; transform-origin:50% 100%; transform:rotate(var(--a,0deg))}
+.ctrl{display:flex; flex-wrap:wrap; gap:8px 16px; justify-content:space-between; align-items:center}
+.ctrl .lbl{font-family:var(--font-display); font-size:11px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase}
+.konf{display:flex; flex-direction:column; gap:2px}
+.kr{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; font-size:20px; padding:2px 4px}
+.kr .h{text-align:right; min-width:0; overflow-wrap:anywhere}
+.kr .a{min-width:0; overflow-wrap:anywhere}
+.kr .s{font-variant-numeric:tabular-nums; color:var(--gold); min-width:4ch; text-align:center}
+.ct{font-family:var(--font-display); font-size:9px; color:var(--cyan); letter-spacing:.06em}
+.tie{display:grid; grid-template-columns:1fr auto 1fr; gap:8px; font-size:19px; padding:2px 4px; font-variant-numeric:tabular-nums}
+.tie .h{text-align:right; min-width:0; overflow-wrap:anywhere}
+.tie .a{min-width:0; overflow-wrap:anywhere}
+.tie .s{color:var(--ink); text-align:center; white-space:nowrap}
+.tie.mine{background:#323fa8}
+.kr.flash{animation:flash .5s steps(2) 3}
+@keyframes flash{50%{background:var(--an); color:#1b0c02}}
+.log{max-height:220px; overflow:auto; display:flex; flex-direction:column; gap:2px; font-size:19px}
+.log div{color:var(--muted)}
+.log div.me{color:var(--ink)}
+.log div.goal{color:var(--gold)}
+.log b{font-weight:normal; color:var(--cyan); display:inline-block; min-width:3.2ch; font-variant-numeric:tabular-nums}
+.paper{background:var(--paper); color:var(--paper-ink); padding:10px 12px; border:2px solid #b8ac8c}
+.paper .mast{font-family:var(--font-display); font-size:11px; letter-spacing:.14em; border-bottom:2px solid var(--paper-ink); padding-bottom:4px; margin-bottom:6px; display:flex; justify-content:space-between}
+.paper h3{margin:0; font-family:var(--font-display); font-size:17px; line-height:1.25; text-wrap:balance; color:var(--paper-ink); text-transform:none; letter-spacing:0}
+.paper p{margin:6px 0 0; font-size:19px}
+
+.tw{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:19px; font-variant-numeric:tabular-nums}
+th{font-family:var(--font-display); font-size:10px; letter-spacing:.06em; color:var(--muted); text-align:left; font-weight:400; padding:4px; border-bottom:2px solid var(--bevel-lo)}
+td{padding:3px 4px; white-space:nowrap}
+td.n,th.n{text-align:right}
+tr.mine td{background:#323fa8; color:var(--gold)}
+.pos{color:var(--cyan)}
+.hint{color:var(--muted); font-size:17px; margin:6px 0 0}
+.msg{font-size:18px; color:var(--gold); min-height:1.2em; margin-top:6px}
+.msg.bad{color:var(--bad)}
+
+/* Kennzahlen-Liste (Bank, Sponsoren, Stadion) */
+.kv{display:grid; grid-template-columns:1fr auto; gap:3px 12px; font-variant-numeric:tabular-nums}
+.kv .v{text-align:right}
+.kv .sum{border-top:2px solid var(--bevel-hi); padding-top:3px; color:var(--gold)}
+.pos-v{color:var(--good)} .neg-v{color:var(--bad)}
+.pic{background:#000; border:3px solid; border-color:#4a4f66 #0b0c14 #0b0c14 #4a4f66; position:relative}
+.pic svg{display:block; width:100%; height:auto}
+.door{position:absolute; left:41%; top:46%; width:17.5%; height:53%; background:transparent; border:0; cursor:pointer}
+.door:focus-visible{outline:2px dashed var(--gold)}
+.build{display:grid; grid-template-columns:1fr auto; gap:8px 10px; align-items:center}
+.build .nm{min-width:0}
+.build .nm small{display:block; color:var(--muted); font-size:16px}
+.build .val{color:var(--cyan)}
+.btns{display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end}
+.rates{display:grid; grid-template-columns:repeat(3,1fr); gap:6px}
+.rates button{font-family:var(--font-body); font-size:19px; background:var(--navy-deep); color:var(--ink); border:2px solid var(--bevel-lo); padding:6px; cursor:pointer; min-height:44px; font-variant-numeric:tabular-nums}
+.rates button[aria-pressed="true"]{border-color:var(--gold); color:var(--gold); background:#2a3394}
+.pls{display:flex; flex-direction:column; gap:3px}
+.pl{display:grid; grid-template-columns:3.6ch 1fr 3ch 3ch 3ch; gap:8px; align-items:center; text-align:left; font-family:var(--font-body); font-size:19px; color:var(--ink); background:var(--navy-deep); border:2px solid var(--bevel-lo); padding:4px 8px; cursor:pointer; min-height:40px; font-variant-numeric:tabular-nums}
+.pl .nm{min-width:0; overflow-wrap:anywhere}
+.pl em{font-style:normal; font-size:16px}
+.pl[aria-pressed="true"]{border-color:var(--gold); background:#2a3394}
+.tcols{display:grid; grid-template-columns:1fr 1fr; gap:6px 18px}
+@media (max-width:560px){ .tcols{grid-template-columns:1fr} }
+.trow{display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; gap:6px; align-items:center; padding:3px 0}
+.trow .tl{min-width:0}
+.tb{font-family:var(--font-display); font-size:14px; width:36px; height:36px; cursor:pointer; background:var(--an); color:#1b0c02; border:2px solid; border-color:var(--an-hi) var(--an-lo) var(--an-lo) var(--an-hi)}
+.tb:disabled{background:var(--off); color:var(--muted); border-color:var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi); cursor:not-allowed}
+.balls{display:grid; grid-template-columns:repeat(5,12px); gap:3px}
+.ball{width:12px; height:12px; border-radius:50%; background:#fff; box-shadow:inset -2px -2px 0 #9096aa; position:relative}
+.ball::after{content:""; position:absolute; left:4px; top:4px; width:3px; height:3px; background:#222}
+.ball.off{background:transparent; box-shadow:none; border:1px dashed var(--bevel-hi)}
+.ball.off::after{display:none}
+input[type=text], textarea, select{font-family:var(--font-body); font-size:20px; color:var(--ink); background:var(--navy-deep); border:2px solid; border-color:var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo); padding:6px 8px; width:100%; min-width:0; min-height:40px}
+input[type=text]:focus, textarea:focus, select:focus{outline:2px solid var(--gold); outline-offset:1px}
+input[type=file]{font-family:var(--font-body); font-size:17px; color:var(--muted); max-width:100%}
+textarea{resize:vertical; font-size:15px; word-break:break-all}
+.box{display:flex; flex-direction:column; gap:8px; margin-top:10px; background:var(--navy-deep); border:2px solid var(--bevel-lo); padding:10px}
+.mgr{font-family:var(--font-display); font-size:12px; letter-spacing:.08em; color:var(--navy-deep); background:var(--gold); padding:4px 8px; margin:-2px 0 8px; text-transform:uppercase}
+.mgrs{display:flex; flex-direction:column; gap:6px; margin:6px 0}
+.mrow{display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:8px; align-items:center; padding:4px; border:2px solid transparent}
+.mrow.on{border-color:var(--gold); background:#2a3394}
+.mpick{background:none; border:0; padding:0; cursor:pointer}
+.mpick .tile, .handc .tile{background:#fff; width:48px; height:48px; display:grid; place-items:center; border:2px solid #c9ccd8}
+.mpick .tile svg, .handc .tile svg{width:42px; height:42px}
+.mclub{color:var(--cyan); font-size:17px; text-align:right}
+@media (max-width:420px){ .mrow{grid-template-columns:auto minmax(0,1fr)} .mclub{grid-column:2; text-align:left} }
+.club em{font-style:normal; color:var(--gold)}
+.club:disabled{opacity:.45; cursor:not-allowed}
+.handc{display:flex; gap:12px; align-items:center}
+.handc .tile{width:72px; height:72px} .handc .tile svg{width:64px; height:64px}
+.hn{font-family:var(--font-display); font-size:20px; color:var(--gold)}
+.slot .btns .btn{min-width:0}
+.replist{display:flex; flex-direction:column; gap:3px; font-size:19px}
+.paper .who{font-family:var(--font-display); font-size:11px; letter-spacing:.1em; margin:10px 0 2px; border-top:1px dashed var(--paper-ink); padding-top:6px}
+.paper .who:first-of-type{border-top:0; margin-top:0; padding-top:0}
+.kr.hum{color:var(--gold)}
+tr.rival td{background:#2a2f6e; color:var(--cyan)}
+.seg.focus{flex-wrap:wrap}
+.seg.focus button{flex:1 1 140px; font-family:var(--font-body); font-size:17px; text-align:left}
+.pl.ctr{grid-template-columns:3.6ch minmax(0,1fr) auto 4ch}
+.pl.ctr em{color:var(--muted)}
+.form{display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 10px; align-items:center}
+.form label{color:var(--muted)}
+.form.names label{font-family:var(--font-display); font-size:10px; color:var(--cyan)}
+.lbl{display:block; color:var(--muted); margin-bottom:4px}
+.sws{display:grid; grid-template-columns:repeat(9, minmax(0,1fr)); gap:5px}
+.sw{aspect-ratio:1; min-height:28px; border:2px solid var(--bevel-lo); cursor:pointer; padding:0}
+.sw[aria-pressed="true"]{outline:3px solid var(--gold); outline-offset:1px}
+.edhead{display:flex; gap:12px; align-items:center; margin-bottom:10px}
+.tile.big{background:#fff; width:72px; height:72px; display:grid; place-items:center; border:2px solid #c9ccd8; flex:none}
+.tile.big svg{width:64px; height:64px}
+.offer{display:grid; grid-template-columns:1fr auto; gap:6px 10px; align-items:center; background:var(--navy-deep); padding:8px; border:2px solid var(--bevel-lo)}
+.offer + .offer{margin-top:6px}
+.offer .nm b{font-weight:normal; color:var(--ink)}
+.offer .nm small{display:block; color:var(--muted); font-size:16px}
+.signed{background:#2a3394; border-color:var(--gold)}
+.guru{background:#3b0d3f; border-color:#c86bd0 #1a051c #1a051c #c86bd0}
+.guru h2{color:#f2a6f7}
+@media (max-width:420px){
+  .club{font-size:14px}
+  .led{font-size:52px}
+  .rates{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:reduce){ .kr.flash{animation:none; background:var(--an); color:#1b0c02} }
+</style>
+
+<div class="app">
+  <header class="marquee">
+    <h1>LIBERO<span>'91</span></h1>
+    <p>Fußball-Manager · Prototyp</p>
+  </header>
+
+  <!-- START -->
+  <section id="scr-start" class="screen">
+    <div class="panel">
+      <h2>Spielstände</h2>
+      <div id="slots"></div>
+      <div class="msg" id="slot-msg" role="status"></div>
+      <div class="row" style="margin-top:8px"><button type="button" class="btn ghost" id="imp-btn">Spielstand importieren</button></div>
+      <div id="imp-box" class="box" hidden>
+        <p class="hint" style="margin-top:0">Spielstand-Datei auswählen oder den exportierten Text einfügen.</p>
+        <input type="file" id="imp-file" accept=".json,.txt,application/json,text/plain" aria-label="Spielstand-Datei">
+        <textarea id="imp-text" rows="4" placeholder="Exportierten Spielstand hier einfügen" aria-label="Spielstand-Text"></textarea>
+        <div class="row"><button type="button" class="btn" id="imp-go">Importieren</button><button type="button" class="btn ghost" id="imp-cancel">Abbrechen</button></div>
+      </div>
+      <div id="exp-box" class="box" hidden>
+        <p class="hint" style="margin-top:0" id="exp-hint"></p>
+        <textarea id="exp-text" rows="4" readonly aria-label="Exportierter Spielstand"></textarea>
+        <div class="row"><button type="button" class="btn" id="exp-copy">Kopieren</button><button type="button" class="btn ghost" id="exp-close">Schließen</button></div>
+      </div>
+      <p class="msg bad" id="save-err" hidden>Speichern fehlgeschlagen: Der Speicher ist voll. Bitte einen alten Spielstand löschen.</p>
+    </div>
+    <div class="panel">
+      <h2>Neues Spiel</h2>
+      <h3>Anzahl Manager</h3>
+      <div class="seg" id="mgr-n"></div>
+      <p class="hint">Bis zu vier Manager spielen reihum an diesem Gerät. Wappen antippen, um den Verein zu wählen.</p>
+      <div id="mgr-rows" class="mgrs"></div>
+      <h3 id="pick-t">Verein wählen</h3>
+      <div class="seg" id="lg-tabs" style="margin-bottom:10px"></div>
+      <div class="clubs" id="clubs"></div>
+      <h3>Speicherplatz</h3>
+      <div class="seg" id="slot-pick"></div>
+      <p class="hint" id="slot-warn"></p>
+    </div>
+    <div class="panel">
+      <h2>Optionen</h2>
+      <div class="opt"><span>Torszenen</span><div class="seg" data-opt="scenes"></div></div>
+      <div class="opt"><span>Sound</span><div class="seg" data-opt="sound"></div></div>
+      <div class="opt"><span>Spielgeschwindigkeit</span><div class="seg" data-opt="speed"></div></div>
+    </div>
+    <button class="btn big" id="btn-new">Saison starten</button>
+  </section>
+
+  <!-- HANDOVER -->
+  <section id="scr-handover" class="screen" hidden>
+    <div class="panel hand">
+      <h2>Managerwechsel</h2>
+      <div class="handc"><div class="tile" id="ho-crest"></div><div><div class="hn" id="ho-name"></div><div id="ho-club"></div></div></div>
+      <p style="color:var(--cyan);margin:10px 0 0" id="ho-next"></p>
+      <p class="hint">Gib das Handy weiter. Die anderen schauen bitte weg.</p>
+    </div>
+    <button class="btn big" id="ho-go">Los geht's</button>
+  </section>
+
+  <!-- MENU -->
+  <section id="scr-menu" class="screen" hidden>
+    <div class="panel">
+      <div class="mgr" id="m-mgr" hidden></div>
+      <div class="mhead">
+        <div class="tile" id="m-crest"></div>
+        <div class="info"><div class="md" id="m-md"></div><div class="nm" id="m-name"></div></div>
+        <div class="cal" id="m-cal"></div>
+      </div>
+      <div class="mfoot"><span class="next" id="m-next"></span><span>Konto: <span class="cash" id="m-cash"></span></span></div>
+      <p class="msg bad" id="m-warn" hidden></p>
+    </div>
+    <div class="paper" id="m-rep" hidden>
+      <div class="mast"><span>VEREINSNACHRICHTEN</span><span>Saisonstart</span></div>
+      <div id="m-rep-list" class="replist"></div>
+      <div class="row" style="margin-top:8px"><button type="button" class="btn sm" id="m-rep-ok">Gelesen</button></div>
+    </div>
+    <div class="tiles">
+      <button class="tilebtn hero" id="t-kick"></button>
+      <button class="tilebtn" data-go="table"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="6" y="6" width="28" height="28" fill="#f1ead6"/><g fill="#2a1a10"><rect x="9" y="10" width="22" height="3"/><rect x="9" y="16" width="18" height="2"/><rect x="9" y="21" width="20" height="2"/><rect x="9" y="26" width="15" height="2"/></g></svg>Tabelle</button>
+      <button class="tilebtn" data-go="euro"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="10" y="6" width="20" height="4" fill="#ffd23a"/><rect x="12" y="10" width="16" height="10" fill="#ffd23a"/><rect x="6" y="9" width="5" height="8" fill="none" stroke="#ffd23a" stroke-width="2"/><rect x="29" y="9" width="5" height="8" fill="none" stroke="#ffd23a" stroke-width="2"/><rect x="18" y="20" width="4" height="8" fill="#ffd23a"/><rect x="12" y="28" width="16" height="5" fill="#9096aa"/></svg>Pokale</button>
+      <button class="tilebtn" data-go="squad"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="15" y="5" width="10" height="9" fill="#e0b088"/><rect x="15" y="5" width="10" height="3" fill="#3a2414"/><rect x="11" y="15" width="18" height="11" fill="#d0712e"/><rect x="13" y="26" width="14" height="5" fill="#fff"/><rect x="14" y="31" width="4" height="5" fill="#e0b088"/><rect x="22" y="31" width="4" height="5" fill="#e0b088"/></svg>Kader</button>
+      <button class="tilebtn" data-go="camp"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="30" width="32" height="6" fill="#3d8a2c"/><rect x="8" y="10" width="4" height="20" fill="#d8dbe6"/><rect x="28" y="10" width="4" height="20" fill="#d8dbe6"/><rect x="8" y="10" width="24" height="3" fill="#d8dbe6"/><rect x="17" y="18" width="6" height="6" fill="#e0b088"/><rect x="16" y="24" width="8" height="6" fill="#d0712e"/><rect x="26" y="26" width="4" height="4" fill="#fff"/></svg>Trainings&shy;lager</button>
+      <button class="tilebtn" data-go="training"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="30" width="32" height="6" fill="#3d8a2c"/><circle cx="10" cy="24" r="5" fill="#fff"/><circle cx="20" cy="24" r="5" fill="#fff"/><circle cx="30" cy="24" r="5" fill="#3a4280"/><rect x="8" y="22" width="2" height="2" fill="#222"/><rect x="18" y="22" width="2" height="2" fill="#222"/><rect x="8" y="6" width="24" height="10" fill="#f1ead6"/><rect x="11" y="9" width="18" height="2" fill="#1c2578"/><rect x="11" y="12" width="12" height="2" fill="#1c2578"/></svg>Training</button>
+      <button class="tilebtn" data-go="transfer"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="12" width="14" height="16" fill="#d0712e"/><rect x="22" y="12" width="14" height="16" fill="#1d3fa8"/><rect x="14" y="6" width="12" height="3" fill="#ffd23a"/><rect x="24" y="4" width="3" height="7" fill="#ffd23a"/><rect x="14" y="31" width="12" height="3" fill="#ffd23a"/><rect x="13" y="29" width="3" height="7" fill="#ffd23a"/></svg>Transfers</button>
+      <button class="tilebtn" data-go="stadium"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="26" width="32" height="8" fill="#3d8a2c"/><rect x="4" y="14" width="10" height="12" fill="#9096aa"/><rect x="26" y="10" width="10" height="16" fill="#9096aa"/><rect x="24" y="8" width="14" height="3" fill="#5b6073"/><rect x="18" y="4" width="2" height="22" fill="#d8dbe6"/><rect x="16" y="3" width="6" height="3" fill="#ffd23a"/></svg>Stadion</button>
+      <button class="tilebtn" data-go="bank"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="10" width="30" height="24" fill="#a4553a"/><rect x="5" y="8" width="30" height="4" fill="#5b6073"/><rect x="9" y="15" width="7" height="6" fill="#1c2578"/><rect x="24" y="15" width="7" height="6" fill="#1c2578"/><rect x="17" y="21" width="6" height="13" fill="#1c2578"/><rect x="14" y="10" width="12" height="4" fill="#f1ead6"/></svg>Bank</button>
+      <button class="tilebtn" data-go="sponsor"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="10" y="8" width="20" height="16" fill="#d0712e"/><rect x="6" y="8" width="5" height="9" fill="#d0712e"/><rect x="29" y="8" width="5" height="9" fill="#d0712e"/><rect x="13" y="13" width="14" height="5" fill="#fff"/><rect x="12" y="24" width="16" height="6" fill="#fff"/><rect x="4" y="32" width="32" height="5" fill="#1d3fa8"/></svg>Sponsoren</button>
+    </div>
+    <div class="row" style="justify-content:center"><button class="linkbtn" data-go="opts">Optionen</button><button class="linkbtn" data-go="editor">Editor</button><button class="linkbtn" data-go="start">Spielstände</button></div>
+  </section>
+
+  <!-- MATCH -->
+  <section id="scr-match" class="screen" hidden>
+    <div class="seg focus" id="mt-tabs" hidden></div>
+    <div class="board">
+      <div class="sb">
+        <div class="tm"><button type="button" class="tile" id="b-hc"></button><span id="b-hn"></span></div>
+        <div class="led" id="b-score">0<i>:</i>0</div>
+        <div class="tm"><button type="button" class="tile" id="b-ac"></button><span id="b-an"></span></div>
+      </div>
+      <div class="stats" id="b-stats"></div>
+    </div>
+    <div class="tv">
+      <canvas id="cv" width="320" height="180" aria-label="Spielszene"></canvas>
+      <div class="clock"><span class="dial" id="dial1"></span><span id="b-min">Anpfiff</span><span class="dial" id="dial2"></span></div>
+    </div>
+    <div class="panel ctrl">
+      <div class="opt" style="gap:8px"><span class="lbl">Torszenen</span><div class="seg" data-opt="scenes"></div></div>
+      <div class="opt" style="gap:8px"><span class="lbl">Tempo</span><div class="seg" data-opt="speed"></div></div>
+      <div class="opt" style="gap:8px"><span class="lbl">Sound</span><div class="seg" data-opt="sound"></div></div>
+      <button type="button" class="btn sm" id="mm-open">Taktik &amp; Wechsel</button>
+    </div>
+    <div class="panel" id="mm" hidden>
+      <h2 id="mm-title">Taktik &amp; Wechsel</h2>
+      <p class="hint" style="margin:0 0 6px">Das Spiel ist unterbrochen.</p>
+      <h3>Taktik</h3><div class="seg" data-opt="tactic"></div>
+      <h3>Spieleinsatz</h3><div class="seg" data-opt="einsatz"></div>
+      <p class="hint">Mehr Einsatz macht stärker, kostet aber Kondition und bringt mehr Karten.</p>
+      <h3 id="mm-subs">Wechsel</h3>
+      <p class="hint" style="margin:0 0 6px">Spieler auf dem Platz antippen, dann den Ersatzspieler. Spalten: Stärke heute, Form, Kondition.</p>
+      <div class="pls" id="mm-out"></div>
+      <h3>Ersatzbank</h3>
+      <div class="pls" id="mm-in"></div>
+      <div class="row" style="margin-top:10px"><button type="button" class="btn" id="mm-do">Auswechseln</button><button type="button" class="btn ghost" id="mm-close">Weiterspielen</button></div>
+    </div>
+    <div id="after" hidden class="screen">
+      <div class="paper" id="paper"></div>
+      <div class="row"><button class="btn" data-go="table">Tabelle</button><button class="btn" id="a-next">Weiter</button></div>
+    </div>
+    <div class="panel"><h2 id="konf-t">Konferenz</h2><div class="konf" id="konf"></div></div>
+    <div class="panel"><h2>Ticker</h2><div class="log" id="log"></div></div>
+  </section>
+
+  <!-- TABLE -->
+  <section id="scr-table" class="screen" hidden>
+    <div class="panel"><div class="seg" id="tb-tabs" style="margin-bottom:10px"></div><h2 id="tb-title">Tabelle</h2><div class="tw"><table id="tb"></table></div>
+      <p class="hint" id="tb-hint"></p></div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- SQUAD -->
+  <section id="scr-squad" class="screen" hidden>
+    <div class="panel">
+      <h2>Taktik</h2>
+      <div class="seg" data-opt="tactic"></div>
+      <h3>Spieleinsatz</h3><div class="seg" data-opt="einsatz"></div>
+      <p class="hint">Mannschaftsstärke: <span id="sq-str"></span></p>
+    </div>
+    <div class="panel">
+      <h2>Aufstellung</h2>
+      <p class="hint" style="margin:0 0 6px" id="ln-mode"></p>
+      <h3>Startelf</h3><div class="pls" id="ln-xi"></div>
+      <h3>Reserve</h3><div class="pls" id="ln-res"></div>
+      <div class="msg" id="ln-msg" role="status"></div>
+      <div class="row" style="margin-top:8px"><button type="button" class="btn ghost" id="ln-auto">Automatisch aufstellen</button></div>
+    </div>
+    <div class="panel">
+      <h2>Verträge</h2>
+      <p class="hint" style="margin:0 0 6px">Spalten: Gehalt pro Spieltag in DM, Vertrag bis Saison. Rot = läuft zum Saisonende aus, der Spieler geht dann ablösefrei. Antippen zum Verhandeln.</p>
+      <div class="pls" id="ct-list"></div>
+      <div class="box" id="ct-neg" hidden></div>
+      <div class="msg" id="ct-msg" role="status"></div>
+    </div>
+    <div class="panel"><h2>Ihre Mannschaft</h2><div class="tw"><table id="sq"></table></div>
+      <p class="hint">Gelb markiert: Startelf. Form: ↑↑ super bis ↓↓ schwach. Kond. = Kondition (0–100). Gehälter pro Spieltag: <span id="sq-pay"></span></p></div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- STADIUM -->
+  <section id="scr-stadium" class="screen" hidden>
+    <div class="pic" id="st-pic"></div>
+    <div class="panel">
+      <h2 id="st-name">Stadion</h2>
+      <div class="kv" id="st-kv"></div>
+    </div>
+    <div class="panel">
+      <h2>Ausbau</h2>
+      <div class="build" id="st-build"></div>
+      <div class="msg" id="st-msg" role="status"></div>
+    </div>
+    <div class="panel">
+      <h2>Eintrittspreis</h2>
+      <div class="opt"><span>Stehplatz <span class="val" id="st-price"></span> · Sitzplatz <span class="val" id="st-price2"></span></span>
+        <div class="seg"><button type="button" id="pr-m" aria-label="Preis senken">−</button><button type="button" id="pr-p" aria-label="Preis erhöhen">+</button></div></div>
+      <p class="hint" id="st-est"></p>
+    </div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- BANK -->
+  <section id="scr-bank" class="screen" hidden>
+    <div class="pic" id="bk-pic"></div>
+    <div class="panel guru" id="guru" hidden></div>
+    <div class="panel">
+      <h2>Kontoübersicht</h2>
+      <div class="kv" id="bk-kv"></div>
+    </div>
+    <div class="panel">
+      <h2>Kredit aufnehmen</h2>
+      <h3>Laufzeit · Zinssatz</h3>
+      <div class="rates" id="bk-rates"></div>
+      <h3>Betrag</h3>
+      <div class="seg" id="bk-amt"></div>
+      <p class="hint" id="bk-info"></p>
+      <button class="btn big" id="bk-take" style="margin-top:8px">Kredit aufnehmen</button>
+      <div class="msg" id="bk-msg" role="status"></div>
+    </div>
+    <div class="panel">
+      <h2>Laufende Kredite</h2>
+      <div id="bk-loans"></div>
+    </div>
+    <div class="panel">
+      <h2 id="bk-bil-t">Bilanz letzter Spieltag</h2>
+      <div class="kv" id="bk-bil"></div>
+    </div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- SPONSOR -->
+  <section id="scr-sponsor" class="screen" hidden>
+    <div class="panel">
+      <h2>Trikotwerbung</h2>
+      <div id="sp-trikot"></div>
+    </div>
+    <div class="panel">
+      <h2>Bandenwerbung</h2>
+      <div id="sp-bande"></div>
+    </div>
+    <div class="panel">
+      <h2>Werbeausgaben</h2>
+      <p class="hint" style="margin:0 0 8px">Eigene Werbung für den Verein lockt mehr Zuschauer ins Stadion.</p>
+      <div class="seg" id="sp-ads"></div>
+    </div>
+    <div class="panel">
+      <h2>Pro Spieltag</h2>
+      <div class="kv" id="sp-sum"></div>
+    </div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- CAMP -->
+  <section id="scr-camp" class="screen" hidden>
+    <div class="panel">
+      <h2>Trainingslager</h2>
+      <p style="margin:0 0 8px;color:var(--cyan)" id="tr-status"></p>
+      <div class="kv" id="tr-kv"></div>
+      <div class="msg" id="tr-msg" role="status"></div>
+    </div>
+    <div class="panel"><h2>Angebote</h2><div id="tr-list"></div>
+      <p class="hint">Nach jedem Trainingslager braucht die Mannschaft 3 Spieltage Pause.</p></div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- TRAINING -->
+  <section id="scr-training" class="screen" hidden>
+    <div class="panel">
+      <h2>Training</h2>
+      <p class="hint" style="margin:0 0 8px">Verteile auf jeder Seite 10 Bälle. Links: wer trainiert. Rechts: was trainiert wird. Das Training wirkt nach jedem Spieltag.</p>
+      <div class="tcols">
+        <div><h3>Mannschaftsteile <span id="tp-free1"></span></h3><div id="tp-pos"></div></div>
+        <div><h3>Inhalte <span id="tp-free2"></span></h3><div id="tp-inh"></div></div>
+      </div>
+      <h3>Intensität</h3>
+      <div class="seg" id="tp-int"></div>
+      <p class="hint">Hart wirkt stärker, drückt aber die Laune und erhöht das Verletzungsrisiko.</p>
+    </div>
+    <div class="panel">
+      <h2>Zustand der Mannschaft</h2>
+      <div class="kv" id="tp-kv"></div>
+      <p class="hint" id="tp-log"></p>
+    </div>
+    <div class="panel">
+      <h2>Jugendarbeit</h2>
+      <div class="seg" id="yt-seg"></div>
+      <p class="hint" id="yt-info"></p>
+    </div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- TRANSFER -->
+  <section id="scr-transfer" class="screen" hidden>
+    <div class="panel"><h2>Transfermarkt</h2><div class="kv" id="tf-kv"></div><div class="msg" id="tf-msg" role="status"></div></div>
+    <div class="panel"><h2>Spieler kaufen</h2><div id="tf-buy"></div><p class="hint">Die Liste ändert sich jeden Spieltag.</p></div>
+    <div class="panel"><h2>Spieler verkaufen</h2><div id="tf-sell"></div><p class="hint">„Anbieten“ holt ein Angebot ein. Angebote gelten bis zum nächsten Spieltag.</p></div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- EURO -->
+  <section id="scr-euro" class="screen" hidden>
+    <div id="eu-comps" class="screen"></div>
+    <div class="panel"><h2>Meldungen</h2><div class="log" id="eu-news"></div></div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- OPTIONS -->
+  <section id="scr-opts" class="screen" hidden>
+    <div class="panel">
+      <h2>Optionen</h2>
+      <div class="opt"><span>Torszenen</span><div class="seg" data-opt="scenes"></div></div>
+      <div class="opt"><span>Sound</span><div class="seg" data-opt="sound"></div></div>
+      <div class="opt"><span>Spielgeschwindigkeit</span><div class="seg" data-opt="speed"></div></div>
+      <p class="hint">Während einer Torszene: aufs Bild tippen zum Überspringen. Spielstände sichern und laden: Hauptmenü → Spielstände.</p>
+    </div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+
+  <!-- EDITOR -->
+  <section id="scr-editor" class="screen" hidden>
+    <div class="panel">
+      <h2>Editor</h2>
+      <div class="seg" id="ed-tabs"></div>
+      <p class="hint">Änderungen gelten nur für diesen Spielstand.</p>
+    </div>
+    <div id="ed-body"></div>
+    <button class="btn big" data-go="menu">Hauptmenü</button>
+  </section>
+</div>
+
+<script>
+/*@@SCRIPT@@*/
+</script>
