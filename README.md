@@ -8,6 +8,10 @@ Der traditionelle Bundesliga Manager Professional von 1991 in neuem Gewand: ein 
 2. Datei öffnen und installieren. Beim ersten Mal fragt Android, ob Installationen aus dieser Quelle erlaubt sind.
 3. Updates genauso installieren – der Spielstand bleibt erhalten, weil jede Version mit demselben Schlüssel signiert ist.
 
+### Im Browser spielen
+
+Jedes Release enthält zusätzlich `Libero91-….html`: herunterladen und im Browser öffnen (PC, Tablet oder iPhone). Die Datei enthält das komplette Spiel samt Schriften und läuft ohne Internet. Spielstände werden im jeweiligen Browser gespeichert und lassen sich über Export/Import zwischen App und Browser austauschen.
+
 ## Inhalt
 
 - Bis zu 4 Manager reihum an einem Gerät (Hotseat)

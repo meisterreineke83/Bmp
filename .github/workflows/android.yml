@@ -29,14 +29,18 @@ jobs:
       - name: APK bauen
         run: gradle assembleRelease --no-daemon
 
-      - name: APK umbenennen
-        run: cp app/build/outputs/apk/release/app-release.apk Libero91-${{ github.run_number }}.apk
+      - name: APK und HTML-Version umbenennen
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk Libero91-${{ github.run_number }}.apk
+          cp app/src/main/assets/index.html Libero91-${{ github.run_number }}.html
 
       - name: APK als Build-Ergebnis speichern
         uses: actions/upload-artifact@v4
         with:
           name: Libero91-${{ github.run_number }}
-          path: Libero91-${{ github.run_number }}.apk
+          path: |
+            Libero91-${{ github.run_number }}.apk
+            Libero91-${{ github.run_number }}.html
 
       - name: Release zum Herunterladen anlegen
         uses: softprops/action-gh-release@v2
@@ -45,6 +49,10 @@ jobs:
           name: Libero '91 – Version 0.${{ github.run_number }}
           body: |
             Neue Version vom Stand ${{ github.sha }}.
-            Auf dem Handy: APK herunterladen, öffnen, installieren. Der Spielstand bleibt bei Updates erhalten.
-          files: Libero91-${{ github.run_number }}.apk
+            **Android:** `Libero91-${{ github.run_number }}.apk` herunterladen, öffnen, installieren. Der Spielstand bleibt bei Updates erhalten.
+
+            **Browser (PC, Tablet, iPhone):** `Libero91-${{ github.run_number }}.html` herunterladen und im Browser öffnen. Läuft komplett offline. Spielstände liegen im jeweiligen Browser; mitnehmen lassen sie sich über Export und Import.
+          files: |
+            Libero91-${{ github.run_number }}.apk
+            Libero91-${{ github.run_number }}.html
           make_latest: true
